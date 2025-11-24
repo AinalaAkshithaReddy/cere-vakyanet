@@ -55,19 +55,21 @@ app.add_middleware(
 )
 
 # Configuration
-USE_MOCK_TRANSLATION = os.getenv("USE_MOCK_TRANSLATION", "false").lower() == "true"
+# USE_MOCK_TRANSLATION = os.getenv("USE_MOCK_TRANSLATION", "false").lower() == "true"
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-AZURE_TRANSLATOR_KEY = os.getenv("AZURE_TRANSLATOR_KEY", "")
-AZURE_TRANSLATOR_REGION = os.getenv("AZURE_TRANSLATOR_REGION", "")
+# AZURE_TRANSLATOR_KEY = os.getenv("AZURE_TRANSLATOR_KEY", "")
+# AZURE_TRANSLATOR_REGION = os.getenv("AZURE_TRANSLATOR_REGION", "")
 
 # Log configuration status
-logger.info(f"Mock translation mode: {USE_MOCK_TRANSLATION}")
-if USE_MOCK_TRANSLATION:
-    logger.info("⚠️  Running in MOCK mode - translations will be simulated")
+# logger.info(f"Mock translation mode: {USE_MOCK_TRANSLATION}")
+# if USE_MOCK_TRANSLATION:
+#     logger.info("⚠️  Running in MOCK mode - translations will be simulated")
 if GOOGLE_API_KEY:
     logger.info("✓ Google API key found")
-if AZURE_TRANSLATOR_KEY:
-    logger.info("✓ Azure Translator key found")
+else: 
+    logger.warning("⚠️  Google API key not found")
+# if AZURE_TRANSLATOR_KEY:
+#     logger.info("✓ Azure Translator key found")
 
 # Language mapping
 LANGUAGE_MAP = {
@@ -104,11 +106,11 @@ LANGUAGE_DISPLAY = {
 }
 
 # Mock translation responses for testing
-MOCK_TRANSLATIONS = {
-    "hi": {"hello": "नमस्ते", "thank you": "धन्यवाद", "good morning": "सुप्रभात"},
-    "en": {"hello": "hello", "thank you": "thank you", "good morning": "good morning"},
-    "ta": {"hello": "வணக்கம்", "thank you": "நன்றி", "good morning": "காலை வணக்கம்"},
-}
+# MOCK_TRANSLATIONS = {
+#     "hi": {"hello": "नमस्ते", "thank you": "धन्यवाद", "good morning": "सुप्रभात"},
+#     "en": {"hello": "hello", "thank you": "thank you", "good morning": "good morning"},
+#     "ta": {"hello": "வணக்கம்", "thank you": "நன்றி", "good morning": "காலை வணக்கம்"},
+# }
 
 class TranslateRequest(BaseModel):
     text: str
@@ -273,8 +275,8 @@ def mock_translate(text: str, target_language: str) -> str:
     text_lower = text.lower().strip()
     
     # Try to find exact match in mock translations
-    if text_lower in MOCK_TRANSLATIONS.get(target_code, {}):
-        return MOCK_TRANSLATIONS[target_code][text_lower]
+    # if text_lower in MOCK_TRANSLATIONS.get(target_code, {}):
+    #     return MOCK_TRANSLATIONS[target_code][text_lower]
     
     # Return a mock translation with target language indicator
     return f"[MOCK: {target_code.upper()}] {text}"
@@ -291,14 +293,14 @@ def translate_text(text: str, target_language: str) -> Dict[str, any]:
             raise ValueError(f"Unsupported target language: {target_language}")
         
         # Mock mode
-        if USE_MOCK_TRANSLATION:
-            logger.info(f"MOCK: Translating '{text[:50]}...' to {target_code}")
-            translated = mock_translate(text, target_language)
-            return {
-                "translated_text": translated,
-                "confidence": "high",
-                "provider": "mock"
-            }
+        # if USE_MOCK_TRANSLATION:
+        #     logger.info(f"MOCK: Translating '{text[:50]}...' to {target_code}")
+        #     translated = mock_translate(text, target_language)
+        #     return {
+        #         "translated_text": translated,
+        #         "confidence": "high",
+        #         "provider": "mock"
+        #     }
         
         # Detect source language with better error handling
         source_code = "auto"  # Default to auto
@@ -419,8 +421,8 @@ def read_root():
     """Health check endpoint"""
     return {
         "message": "Translation API is running",
-        "mock_mode": USE_MOCK_TRANSLATION,
-        "provider": "mock" if USE_MOCK_TRANSLATION else "google"
+        # "mock_mode": USE_MOCK_TRANSLATION,
+        # "provider": "mock" if USE_MOCK_TRANSLATION else "google"
     }
 
 @app.get("/api/health")
@@ -428,10 +430,7 @@ def health_check():
     """Detailed health check"""
     return {
         "status": "healthy",
-        "mock_mode": USE_MOCK_TRANSLATION,
-        "provider": "mock" if USE_MOCK_TRANSLATION else "google",
         "has_google_key": bool(GOOGLE_API_KEY),
-        "has_azure_key": bool(AZURE_TRANSLATOR_KEY)
     }
 
 @app.post("/api/detect-language")
@@ -457,7 +456,7 @@ async def translate_endpoint(request: TranslateRequest):
             "translated_text": result["translated_text"],
             "detected_language": detected_lang,
             "target_language": request.target_language,
-            "confidence": result.get("confidence", "medium"),
+            "confidence": result.get("confidence", "high"),
             "provider": result.get("provider", "google")
         }
     except HTTPException:
@@ -495,7 +494,7 @@ async def translate_paragraphs_endpoint(request: ParagraphTranslateRequest):
         
         return ParagraphTranslateResponse(
             translations=translations,
-            provider="mock" if USE_MOCK_TRANSLATION else "google",
+            # provider="mock" if USE_MOCK_TRANSLATION else "google",
             error="; ".join(errors) if errors else None
         )
     except Exception as e:

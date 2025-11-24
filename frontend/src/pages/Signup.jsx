@@ -194,7 +194,7 @@ function Signup() {
         <p className="text-center text-sm text-gray-400">
           Already have an account?{' '}
           <a
-            href="/login"
+            onClick={() => navigate('/signin')}
             className="text-cyan-400 hover:text-teal-300 transition-colors"
           >
             Sign in

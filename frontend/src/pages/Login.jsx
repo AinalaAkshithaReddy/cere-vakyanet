@@ -104,7 +104,7 @@ function Login() {
         <p className="text-center text-sm text-gray-400">
           Don&apos;t have an account?{' '}
           <a
-            href="/signup"
+            onClick={() => navigate('/signup')}
             className="text-cyan-400 hover:text-teal-300 transition-colors"
           >
             Create one

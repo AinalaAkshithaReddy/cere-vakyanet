@@ -7,7 +7,7 @@ import Signup from './pages/Signup';
 import Landing from './pages/Landing';
 import { supabase } from './supabaseClient';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://vakyanet-backend.azurewebsites.net';
 
 const LANGUAGES = [
   { value: 'hindi', label: 'Hindi' },
