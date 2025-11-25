@@ -68,7 +68,7 @@ app = FastAPI(title="Translation API")
 # CORS middleware to allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000","https://cere-vakyanet.cerevyn.com"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
